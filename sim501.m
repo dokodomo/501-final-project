@@ -1,9 +1,42 @@
 function sim501
+% Clear everything
 close;
+clear;
+clc;
+% Set initial values
 old_l10 = 1;
 old_l20 = 1;
 old_l30 = 1;
-initialize;
+
+l10_len = 1; l11_len = l10_len/cosd(30); l12_len = l11_len; l13_len = l11_len; 
+range1 = [2/3*l10_len/cosd(30), 4/3*l10_len/cosd(30)];
+l11_limit = range1;   % Min and Max of the acctuators
+l12_limit = range1;
+l13_limit = range1;
+l11_temp = l11_len; l12_temp = l12_len;
+
+l20_len = 1; l21_len = l20_len/cosd(30); l22_len = l21_len; l23_len = l21_len; 
+range2 = [2/3*l20_len/cosd(30), 4/3*l20_len/cosd(30)];
+l21_limit = range2;
+l22_limit = range2;
+l23_limit = range2;
+l21_temp = l21_len; l22_temp = l22_len;
+
+l30_len = 1; l31_len = l30_len/cosd(30); l32_len = l31_len; l33_len = l31_len; 
+range3 = [2/3*l30_len/cosd(30), 4/3*l30_len/cosd(30)];
+l31_limit = range3;
+l32_limit = range3;
+l33_limit = range3;
+l31_temp = l31_len; l32_temp = l32_len;
+
+% Create the figure
+set(0,'Units','pixels');
+dim = get(groot,'ScreenSize');
+fig = figure('name','Parallel Manipulator',...
+    'numbertitle','off',...
+    'menubar','none',...
+    'units','pixels',...%);
+    'outerposition',[dim(3)*.125 dim(4)*.125 800 600]);
 
 figsize = get(fig,'outerPosition');
 
@@ -201,7 +234,7 @@ l9_max = uicontrol('parent', panel2,...
     'string', round(l33_limit(2),3),...
     'Position', [p2_size(3)*.7 p2_size(4)*.04 50 20]);
 
-% Link labels
+% Link labels (not used for anything)
 l1_label = uicontrol('parent', panel2,...
     'style', 'text',...
     'fontweight', 'bold',...
@@ -447,7 +480,7 @@ pb2 = uicontrol('parent', panel1,...
     'Position', [p1_size(3)*.75 p1_size(4)*.1 60 p1_size(4)*.3],...
     'callback', @reset_callback);
 
-%% Other Stuff
+%% Functions
 %% Fwd Kin Panel Callback Functions
     % Slider callback functions
     function s1_callback(hObject, callbackdata)
@@ -510,7 +543,7 @@ pb2 = uicontrol('parent', panel1,...
         l32_len = str2double(get(hObject, 'String'));
         set(l8_slider, 'Value', l32_len);
     end 
-    
+
 %% Options Panel Callback Functions
     function l10_edit_callback(hObject, callbackdata)
         l10_len = str2double(get(hObject, 'String'));
@@ -543,15 +576,20 @@ pb2 = uicontrol('parent', panel1,...
         update;
     end
 
-     function home_callback(hObject, callbackdata)
+    function home_callback(hObject, callbackdata)
          home;
      end
  
-     function reset_callback(hObject, callbackdata)
+    function reset_callback(hObject, callbackdata)
          reset;
-     end
+    end
+
+%% Inv Kin Panel Callback Functions
+ 
+%% General Functions
     % Update all values and figures
     function update
+        %set all values so they will be reflected in the GUI
         set(l1_edit, 'String', l11_len);
         set(l2_edit, 'String', l12_len);
         set(l4_edit, 'String', l21_len);
@@ -591,10 +629,11 @@ pb2 = uicontrol('parent', panel1,...
         old_l10 = l10_len;
         old_l20 = l20_len;
         old_l30 = l30_len;
-        %refresh
+        refresh;
     end
     % Return to initial position (vertically straight)
     function home
+        % reseting all lengths to initial position
         l11_len = l10_len/cosd(30); l12_len = l11_len; l13_len = l11_len;
         range1 = [2/3*l10_len/cosd(30), 4/3*l10_len/cosd(30)];
         l11_limit = range1;   % Min and Max of the acctuators
@@ -616,6 +655,8 @@ pb2 = uicontrol('parent', panel1,...
     end
     % Retrun to initial position with initial values
     function reset
+        % Set the links to default link lengths before returning to home
+        % position
         l10_len = 1;
         l20_len = 1;
         l30_len = 1;
@@ -624,35 +665,19 @@ pb2 = uicontrol('parent', panel1,...
         set(l30_edit, 'String', l30_len);
         home;
     end
-
-    function initialize
-        old_l10 = 1;
-        old_l20 = 1;
-        old_l30 = 1;
-        l10_len = 1; l11_len = l10_len/cosd(30); l12_len = l11_len; l13_len = l11_len; 
-        range1 = [2/3*l10_len/cosd(30), 4/3*l10_len/cosd(30)];
-        l11_limit = range1;   % Min and Max of the acctuators
-        l12_limit = range1;
-        l13_limit = range1;
+    % Checks if input is valid and corrects it if not
+    function value = valid_entry(entered, limit, default)
+        if isnumeric(entered) == 0 % not a number
+            errordlg('Enter a numeric value.')
+            value = default;            
+        end;
         
-        l20_len = 1; l21_len = l20_len/cosd(30); l22_len = l21_len; l23_len = l21_len; 
-        range2 = [2/3*l20_len/cosd(30), 4/3*l20_len/cosd(30)];
-        l21_limit = range2;   % Min and Max of the acctuators
-        l22_limit = range2;
-        l23_limit = range2;
-        
-        l30_len = 1; l31_len = l30_len/cosd(30); l32_len = l31_len; l33_len = l31_len; 
-        range3 = [2/3*l30_len/cosd(30), 4/3*l30_len/cosd(30)];
-        l31_limit = range3;   % Min and Max of the acctuators
-        l32_limit = range3;
-        l33_limit = range3;
-        
-        set(0,'Units','pixels');
-        dim = get(groot,'ScreenSize');
-        fig = figure('name','Parallel Manipulator',...
-            'numbertitle','off',...
-            'menubar','none',...
-            'units','pixels',...%);
-            'outerposition',[dim(3)*.125 dim(4)*.125 800 600]);
+        if entered > limit(2)
+            errordlg('Entry to large, defaulting to max')
+            value = limit(2);
+        elseif entered < limit(1)
+            errordlg('Entry to small, defaulting to min')
+            value = limit(1);
+        end
     end
 end
