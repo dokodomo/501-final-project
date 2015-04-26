@@ -1,9 +1,11 @@
 function sim501
 close;
+old_l10 = 1;
+old_l20 = 1;
+old_l30 = 1;
+initialize;
 
-initialize
-
-figsize = get(fig,'outerPosition')
+figsize = get(fig,'outerPosition');
 
 % Create the GUI
 %% Panels
@@ -26,9 +28,9 @@ panel3 = uipanel('title', 'InverseKinematics',...
     'position',[0 0 figsize(3)/3 figsize(4)/4]);
 
 % Get the dimensions of the panels
-p1_size = get(panel1, 'Position')
-p2_size = get(panel2, 'Position')
-p3_size = get(panel3, 'Position')
+p1_size = get(panel1, 'Position');
+p2_size = get(panel2, 'Position');
+p3_size = get(panel3, 'Position');
 
 %% Fwd Kin Panel - Sliders
 % Slider for Link1
@@ -95,7 +97,7 @@ l8_slider = uicontrol('parent', panel2,...
 l1_min = uicontrol('parent', panel2,...
     'style', 'text',...
     'string', round(l11_limit(1),3),...
-    'Position', [p2_size(3)*.1 p2_size(4)*.84 50 20])
+    'Position', [p2_size(3)*.1 p2_size(4)*.84 50 20]);
 
 % Link1 max value
 l1_max = uicontrol('parent', panel2,...
@@ -258,37 +260,37 @@ l9_label = uicontrol('parent', panel2,...
 % editable fields for the controled actuators
 l1_edit = uicontrol('parent', panel2,...
     'style', 'edit',...
-    'string', 0,...
+    'string', l11_len,...
     'position', [p2_size(3)*.85 p2_size(4)*.85 35 20],...
     'callback', @e1_callback);
 
 l2_edit = uicontrol('parent', panel2,...
     'style', 'edit',...
-    'string', 0,...
+    'string', l12_len,...
     'position', [p2_size(3)*.85 p2_size(4)*.75 35 20],...
     'callback', @e2_callback);
 
 l4_edit = uicontrol('parent', panel2,...
     'style', 'edit',...
-    'string', 0,...
+    'string', l21_len,...
     'position', [p2_size(3)*.85 p2_size(4)*.55 35 20],...
     'callback', @e4_callback);
 
 l5_edit = uicontrol('parent', panel2,...
     'style', 'edit',...
-    'string', 0,...
+    'string', l22_len,...
     'position', [p2_size(3)*.85 p2_size(4)*.45 35 20],...
     'callback', @e5_callback);
 
 l7_edit = uicontrol('parent', panel2,...
     'style', 'edit',...
-    'string', 0,...
+    'string', l31_len,...
     'position', [p2_size(3)*.85 p2_size(4)*.25 35 20],...
     'callback', @e7_callback);
 
 l8_edit = uicontrol('parent', panel2,...
     'style', 'edit',...
-    'string', 0,...
+    'string', l32_len,...
     'position', [p2_size(3)*.85 p2_size(4)*.15 35 20],...
     'callback', @e8_callback);
 
@@ -414,31 +416,36 @@ l30_label = uicontrol('parent', panel1,...
 l10_edit = uicontrol('parent', panel1,...
     'style', 'edit',...
     'string', l10_len,...
-    'position', [p1_size(3)*.12 p1_size(4)*.3 25 17]);
+    'position', [p1_size(3)*.12 p1_size(4)*.3 25 17],...
+    'callback', @l10_edit_callback);
 
 l20_edit = uicontrol('parent', panel1,...
     'style', 'edit',...
     'string', l20_len,...
-    'position', [p1_size(3)*.37 p1_size(4)*.3 25 17]);
-
+    'position', [p1_size(3)*.37 p1_size(4)*.3 25 17],...
+    'callback', @l20_edit_callback);
+    
 l30_edit = uicontrol('parent', panel1,...
     'style', 'edit',...
     'string', l30_len,...
-    'position', [p1_size(3)*.61 p1_size(4)*.3 25 17]);
+    'position', [p1_size(3)*.61 p1_size(4)*.3 25 17],...
+    'callback', @l30_edit_callback);
 
 pb1 = uicontrol('parent', panel1,...
     'style', 'pushbutton',...
     'fontweight', 'bold',...
     'fontsize', 10,...
     'string', 'Home',...
-    'Position', [p1_size(3)*.75 p1_size(4)*.42 60 p1_size(4)*.3]);
+    'Position', [p1_size(3)*.75 p1_size(4)*.42 60 p1_size(4)*.3],...
+    'callback', @home_callback);
 
 pb2 = uicontrol('parent', panel1,...
     'style', 'pushbutton',...
     'fontweight', 'bold',...
     'fontsize', 10,...
     'string', 'Reset',...
-    'Position', [p1_size(3)*.75 p1_size(4)*.1 60 p1_size(4)*.3]);
+    'Position', [p1_size(3)*.75 p1_size(4)*.1 60 p1_size(4)*.3],...
+    'callback', @reset_callback);
 
 %% Other Stuff
 %% Fwd Kin Panel Callback Functions
@@ -503,8 +510,125 @@ pb2 = uicontrol('parent', panel1,...
         l32_len = str2double(get(hObject, 'String'));
         set(l8_slider, 'Value', l32_len);
     end 
+    
+%% Options Panel Callback Functions
+    function l10_edit_callback(hObject, callbackdata)
+        l10_len = str2double(get(hObject, 'String'));
+        l11_limit = l11_limit / old_l10 * l10_len;
+        l12_limit = l12_limit / old_l10 * l10_len;
+        l13_limit = l13_limit / old_l10 * l10_len;
+        l11_len = l11_len / old_l10 * l10_len;
+        l12_len = l12_len / old_l10 * l10_len;
+        %l13_len = l13_len * l10_len;
+        update
+    end
+
+    function l20_edit_callback(hObject, callbackdata)
+        l20_len = str2double(get(hObject, 'String'));
+        l21_limit = l21_limit / old_l20 * l20_len;
+        l22_limit = l22_limit / old_l20 * l20_len;
+        l23_limit = l23_limit / old_l20 * l20_len;
+        l21_len = l21_len / old_l20 * l20_len;
+        l22_len = l22_len / old_l20 * l20_len;
+        update;
+    end
+
+    function l30_edit_callback(hObject, callbackdata)
+        l30_len = str2double(get(hObject, 'String'));
+        l31_limit = l31_limit / old_l30 * l30_len;
+        l32_limit = l32_limit / old_l30 * l30_len;
+        l33_limit = l33_limit / old_l30 * l30_len;
+        l31_len = l31_len / old_l30 * l30_len;
+        l32_len = l32_len / old_l30 * l30_len;
+        update;
+    end
+
+     function home_callback(hObject, callbackdata)
+         home;
+     end
+ 
+     function reset_callback(hObject, callbackdata)
+         reset;
+     end
+    % Update all values and figures
+    function update
+        set(l1_edit, 'String', l11_len);
+        set(l2_edit, 'String', l12_len);
+        set(l4_edit, 'String', l21_len);
+        set(l5_edit, 'String', l22_len);
+        set(l7_edit, 'String', l31_len);
+        set(l8_edit, 'String', l32_len);
+        set(l1_slider, 'Min',  l11_limit(1), 'Max', l11_limit(2),...
+            'Value', l11_len);
+        set(l2_slider, 'Min',  l12_limit(1), 'Max', l12_limit(2),...
+            'Value', l12_len);
+        set(l4_slider, 'Min',  l21_limit(1), 'Max', l21_limit(2),...
+            'Value', l21_len);
+        set(l5_slider, 'Min',  l22_limit(1), 'Max', l22_limit(2),...
+            'Value', l22_len);
+        set(l7_slider, 'Min',  l31_limit(1), 'Max', l31_limit(2),...
+            'Value', l31_len);
+        set(l8_slider, 'Min',  l32_limit(1), 'Max', l32_limit(2),...
+            'Value', l32_len);
+        set(l1_min, 'String', round(l11_limit(1),3));
+        set(l1_max, 'String', round(l11_limit(2),3));
+        set(l2_min, 'String', round(l12_limit(1),3));
+        set(l2_max, 'String', round(l12_limit(2),3));
+        set(l3_min, 'String', round(l13_limit(1),3));
+        set(l3_max, 'String', round(l13_limit(2),3));
+        set(l4_min, 'String', round(l21_limit(1),3));
+        set(l4_max, 'String', round(l21_limit(2),3));
+        set(l5_min, 'String', round(l22_limit(1),3));
+        set(l5_max, 'String', round(l22_limit(2),3));
+        set(l6_min, 'String', round(l23_limit(1),3));
+        set(l6_max, 'String', round(l23_limit(2),3));
+        set(l7_min, 'String', round(l31_limit(1),3));
+        set(l7_max, 'String', round(l31_limit(2),3));
+        set(l8_min, 'String', round(l32_limit(1),3));
+        set(l8_max, 'String', round(l32_limit(2),3));
+        set(l9_min, 'String', round(l33_limit(1),3));
+        set(l9_max, 'String', round(l33_limit(2),3));
+        old_l10 = l10_len;
+        old_l20 = l20_len;
+        old_l30 = l30_len;
+        %refresh
+    end
+    % Return to initial position (vertically straight)
+    function home
+        l11_len = l10_len/cosd(30); l12_len = l11_len; l13_len = l11_len;
+        range1 = [2/3*l10_len/cosd(30), 4/3*l10_len/cosd(30)];
+        l11_limit = range1;   % Min and Max of the acctuators
+        l12_limit = range1;
+        l13_limit = range1;
+        
+        l21_len = l20_len/cosd(30); l22_len = l21_len; l23_len = l21_len; 
+        range2 = [2/3*l20_len/cosd(30), 4/3*l20_len/cosd(30)];
+        l21_limit = range2;   % Min and Max of the acctuators
+        l22_limit = range2;
+        l23_limit = range2;
+        
+        l31_len = l30_len/cosd(30); l32_len = l31_len; l33_len = l31_len; 
+        range3 = [2/3*l30_len/cosd(30), 4/3*l30_len/cosd(30)];
+        l31_limit = range3;   % Min and Max of the acctuators
+        l32_limit = range3;
+        l33_limit = range3;
+        update;
+    end
+    % Retrun to initial position with initial values
+    function reset
+        l10_len = 1;
+        l20_len = 1;
+        l30_len = 1;
+        set(l10_edit, 'String', l10_len);
+        set(l20_edit, 'String', l20_len);
+        set(l30_edit, 'String', l30_len);
+        home;
+    end
 
     function initialize
+        old_l10 = 1;
+        old_l20 = 1;
+        old_l30 = 1;
         l10_len = 1; l11_len = l10_len/cosd(30); l12_len = l11_len; l13_len = l11_len; 
         range1 = [2/3*l10_len/cosd(30), 4/3*l10_len/cosd(30)];
         l11_limit = range1;   % Min and Max of the acctuators
@@ -524,7 +648,7 @@ pb2 = uicontrol('parent', panel1,...
         l33_limit = range3;
         
         set(0,'Units','pixels');
-        dim = get(groot,'ScreenSize')
+        dim = get(groot,'ScreenSize');
         fig = figure('name','Parallel Manipulator',...
             'numbertitle','off',...
             'menubar','none',...
