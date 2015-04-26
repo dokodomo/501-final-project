@@ -3,6 +3,7 @@ function sim501
 close;
 clear;
 clc;
+
 % Set initial values
 old_l10 = 1;
 old_l20 = 1;
@@ -383,7 +384,7 @@ ee_dir = uicontrol('parent', panel3,...
     'string', 'EE dir (unit vector)',...
     'fontweight', 'bold',...
     'fontsize', 11,...
-    'Position', [0 p3_size(4)*.3 125 20]);
+    'Position', [0 p3_size(4)*.3 180 20]);
 
 %% Inv Kin Panel - Edit boxes
 % X, Y, Z editable fields
@@ -516,37 +517,50 @@ pb2 = uicontrol('parent', panel1,...
     % edit text callback
     function e1_callback(hObject, callbackdata)
         l11_len = str2double(get(hObject, 'String'));
+        l11_len = valid_entry(l11_len, l11_limit, l11_temp, l1_edit);
         set(l1_slider, 'Value', l11_len);
+        l11_temp = l11_len;
     end 
 
     function e2_callback(hObject, callbackdata)
         l12_len = str2double(get(hObject, 'String'));
+        l12_len = valid_entry(l12_len, l12_limit, l12_temp, l2_edit);
         set(l2_slider, 'Value', l12_len);
+        l12_temp = l12_len;
     end 
 
     function e4_callback(hObject, callbackdata)
         l21_len = str2double(get(hObject, 'String'));
+        l21_len = valid_entry(l21_len, l21_limit, l21_temp, l4_edit);
         set(l4_slider, 'Value', l21_len);
+        l21_temp = l21_len;
     end 
 
     function e5_callback(hObject, callbackdata)
         l22_len = str2double(get(hObject, 'String'));
+        l22_len = valid_entry(l22_len, l22_limit, l22_temp, l5_edit);
         set(l5_slider, 'Value', l22_len);
+        l22_temp = l22_len;
     end 
 
     function e7_callback(hObject, callbackdata)
         l31_len = str2double(get(hObject, 'String'));
+        l31_len = valid_entry(l31_len, l31_limit, l31_temp, l7_edit);
         set(l7_slider, 'Value', l31_len);
+        l31_temp = l31_len;
     end 
 
     function e8_callback(hObject, callbackdata)
         l32_len = str2double(get(hObject, 'String'));
+        l32_len = valid_entry(l32_len, l32_limit, l32_temp, l8_edit);
         set(l8_slider, 'Value', l32_len);
+        l32_temp = l32_len;
     end 
 
 %% Options Panel Callback Functions
     function l10_edit_callback(hObject, callbackdata)
         l10_len = str2double(get(hObject, 'String'));
+        l10_len = valid_link(l10_len, l10_edit);
         l11_limit = l11_limit / old_l10 * l10_len;
         l12_limit = l12_limit / old_l10 * l10_len;
         l13_limit = l13_limit / old_l10 * l10_len;
@@ -558,6 +572,7 @@ pb2 = uicontrol('parent', panel1,...
 
     function l20_edit_callback(hObject, callbackdata)
         l20_len = str2double(get(hObject, 'String'));
+        l20_len = valid_link(l20_len, l20_edit);
         l21_limit = l21_limit / old_l20 * l20_len;
         l22_limit = l22_limit / old_l20 * l20_len;
         l23_limit = l23_limit / old_l20 * l20_len;
@@ -568,6 +583,7 @@ pb2 = uicontrol('parent', panel1,...
 
     function l30_edit_callback(hObject, callbackdata)
         l30_len = str2double(get(hObject, 'String'));
+        l30_len = valid_link(l30_len, l30_edit);
         l31_limit = l31_limit / old_l30 * l30_len;
         l32_limit = l32_limit / old_l30 * l30_len;
         l33_limit = l33_limit / old_l30 * l30_len;
@@ -665,19 +681,38 @@ pb2 = uicontrol('parent', panel1,...
         set(l30_edit, 'String', l30_len);
         home;
     end
-    % Checks if input is valid and corrects it if not
-    function value = valid_entry(entered, limit, default)
-        if isnumeric(entered) == 0 % not a number
+    % Checks if fwd kin input is valid and corrects it if not
+    function value = valid_entry(entered, limit, default, editbox)
+        if isnan(entered) % not a number
             errordlg('Enter a numeric value.')
-            value = default;            
-        end;
-        
-        if entered > limit(2)
-            errordlg('Entry to large, defaulting to max')
-            value = limit(2);
-        elseif entered < limit(1)
-            errordlg('Entry to small, defaulting to min')
-            value = limit(1);
+            value = default;
+        else
+            if entered > limit(2)
+                errordlg('Entry to large, defaulting to max')
+                value = limit(2);
+            elseif entered < limit(1)
+                errordlg('Entry to small, defaulting to min')
+                value = limit(1);
+            else
+                value =  entered;
+            end;
+ 
         end
+        set(editbox, 'String', value);
     end
+    % Checks if link 0 (center link) inputs are valid
+    function value = valid_link(entered, editbox)
+        default_length = 1;
+        if isnan(entered) % not a number
+           errordlg('Enter a numeric value, defaulting to 1.')
+           value = default_length;
+        elseif entered < 0
+            errordlg('Entry must me positive, defaulting to 1')
+            value = default_length;
+        else
+            value = entered
+        end
+        set(editbox, 'String', value);
+    end
+
 end
