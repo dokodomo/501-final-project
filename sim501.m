@@ -490,6 +490,8 @@ pb2 = uicontrol('parent', panel1,...
     'string', 'Reset',...
     'Position', [p1_size(3)*.75 p1_size(4)*.1 60 p1_size(4)*.3],...
     'callback', @reset_callback);
+% Plot something after everything is generated
+FK;
 
 %% Functions
 %% Fwd Kin Panel Callback Functions
@@ -589,7 +591,8 @@ pb2 = uicontrol('parent', panel1,...
         l11_len = l11_len / old_l10 * l10_len;
         l12_len = l12_len / old_l10 * l10_len;
         %l13_len = l13_len * l10_len;
-        update
+        update;
+        FK;
     end
 
     function l20_edit_callback(hObject, callbackdata)
@@ -601,6 +604,7 @@ pb2 = uicontrol('parent', panel1,...
         l21_len = l21_len / old_l20 * l20_len;
         l22_len = l22_len / old_l20 * l20_len;
         update;
+        FK;
     end
 
     function l30_edit_callback(hObject, callbackdata)
@@ -612,14 +616,17 @@ pb2 = uicontrol('parent', panel1,...
         l31_len = l31_len / old_l30 * l30_len;
         l32_len = l32_len / old_l30 * l30_len;
         update;
+        FK;
     end
 
     function home_callback(hObject, callbackdata)
          home;
+         FK;
      end
  
     function reset_callback(hObject, callbackdata)
          reset;
+         FK;
     end
 
 %% Inv Kin Panel Callback Functions
@@ -801,13 +808,13 @@ pb2 = uicontrol('parent', panel1,...
         T_02=T_01*T_12;
         T_03=T_01*T_12*T_23;
 
-        tri1_1=T_01*[a1 0 0 1]';
-        tri1_2=T_01*[-a1*cosd(60) a1*sind(60) 0 1]';
-        tri1_3=T_01*[-a1*cosd(60) -a1*sind(60) 0 1]';
+        tri1_1=T_01*[a2 0 0 1]';
+        tri1_2=T_01*[-a2*cosd(60) a2*sind(60) 0 1]';
+        tri1_3=T_01*[-a2*cosd(60) -a2*sind(60) 0 1]';
 
-        tri2_1=T_02*[a2 0 0 1]';
-        tri2_2=T_02*[-a2*cosd(60) a1*sind(60) 0 1]';
-        tri2_3=T_02*[-a2*cosd(60) -a1*sind(60) 0 1]';
+        tri2_1=T_02*[a3 0 0 1]';
+        tri2_2=T_02*[-a3*cosd(60) a3*sind(60) 0 1]';
+        tri2_3=T_02*[-a3*cosd(60) -a3*sind(60) 0 1]';
         %% Confirming that L0 is not out of bounds
         q=abs((x1^2+y1^2+z1^2)^0.5);
 
@@ -825,12 +832,12 @@ pb2 = uicontrol('parent', panel1,...
             L8=line([tri2_1(1) tri2_2(1) tri2_3(1) tri2_1(1)],[tri2_1(2)...
                 tri2_2(2) tri2_3(2) tri2_1(2)],[tri2_1(3) tri2_2(3) tri2_3(3)...
                 tri2_1(3)], 'Color',[0 0 1], 'LineWidth', 2);
-            L9=line([tri1_1(1) T_02(1,4) ],[tri1_1(2) T_02(2,4)],[tri1_1(3) T_02(3,4)])
-            L10=line([tri1_2(1) T_02(1,4) ],[tri1_2(2) T_02(2,4)],[tri1_2(3) T_02(3,4)])
-            L11=line([tri1_3(1) T_02(1,4) ],[tri1_3(2) T_02(2,4)],[tri1_3(3) T_02(3,4)])
-            L12=line([tri2_1(1) T_03(1,4)],[tri2_1(2) T_03(2,4)],[tri2_1(3) T_03(3,4)])
-            L13=line([tri2_2(1) T_03(1,4)],[tri2_2(2) T_03(2,4)],[tri2_2(3) T_03(3,4)])
-            L14=line([tri2_3(1) T_03(1,4)],[tri2_3(2) T_03(2,4)],[tri2_3(3) T_03(3,4)])
+            L9=line([tri1_1(1) T_02(1,4) ],[tri1_1(2) T_02(2,4)],[tri1_1(3) T_02(3,4)],'Color',[0 1 0],'LineWidth', 3)
+            L10=line([tri1_2(1) T_02(1,4) ],[tri1_2(2) T_02(2,4)],[tri1_2(3) T_02(3,4)],'Color',[1 0 0],'LineWidth', 3)
+            L11=line([tri1_3(1) T_02(1,4) ],[tri1_3(2) T_02(2,4)],[tri1_3(3) T_02(3,4)],'LineWidth', 3)
+            L12=line([tri2_1(1) T_03(1,4)],[tri2_1(2) T_03(2,4)],[tri2_1(3) T_03(3,4)],'Color',[0 1 0],'LineWidth', 3)
+            L13=line([tri2_2(1) T_03(1,4)],[tri2_2(2) T_03(2,4)],[tri2_2(3) T_03(3,4)],'Color',[1 0 0],'LineWidth', 3)
+            L14=line([tri2_3(1) T_03(1,4)],[tri2_3(2) T_03(2,4)],[tri2_3(3) T_03(3,4)],'LineWidth', 3)
 
         end
         xlabel('X0');
@@ -840,7 +847,7 @@ pb2 = uicontrol('parent', panel1,...
         %axis vis3d
         axis([-1.5 1.5 -1.5 1.5 0 3])
         az = 15;
-        el = 10;
+        el = 15;
         view(az, el);
     end
 end
