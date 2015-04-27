@@ -1,7 +1,7 @@
 function sim501
 % Clear everything
 clc
-clear all
+clear
 close all
 
 % Set initial values
@@ -537,48 +537,48 @@ FK;
         l11_len = str2double(get(hObject, 'String'));
         l11_len = valid_entry(l11_len, l11_limit, l11_temp, l1_edit);
         set(l1_slider, 'Value', l11_len);
+        FK_over_time(1);
         l11_temp = l11_len;
-        FK;
     end 
 
     function e2_callback(hObject, callbackdata)
         l12_len = str2double(get(hObject, 'String'));
         l12_len = valid_entry(l12_len, l12_limit, l12_temp, l2_edit);
         set(l2_slider, 'Value', l12_len);
+        FK_over_time(2);
         l12_temp = l12_len;
-        FK;
     end 
 
     function e4_callback(hObject, callbackdata)
         l21_len = str2double(get(hObject, 'String'));
         l21_len = valid_entry(l21_len, l21_limit, l21_temp, l4_edit);
         set(l4_slider, 'Value', l21_len);
+        FK_over_time(4);
         l21_temp = l21_len;
-        FK;
     end 
 
     function e5_callback(hObject, callbackdata)
         l22_len = str2double(get(hObject, 'String'));
         l22_len = valid_entry(l22_len, l22_limit, l22_temp, l5_edit);
         set(l5_slider, 'Value', l22_len);
+        FK_over_time(5);
         l22_temp = l22_len;
-        FK;
     end 
 
     function e7_callback(hObject, callbackdata)
         l31_len = str2double(get(hObject, 'String'));
         l31_len = valid_entry(l31_len, l31_limit, l31_temp, l7_edit);
         set(l7_slider, 'Value', l31_len);
+        FK_over_time(7);
         l31_temp = l31_len;
-        FK;
     end 
 
     function e8_callback(hObject, callbackdata)
         l32_len = str2double(get(hObject, 'String'));
         l32_len = valid_entry(l32_len, l32_limit, l32_temp, l8_edit);
         set(l8_slider, 'Value', l32_len);
+        FK_over_time(8);
         l32_temp = l32_len;
-        FK;
     end 
 
 %% Options Panel Callback Functions
@@ -831,12 +831,12 @@ FK;
             L8=line([tri2_1(1) tri2_2(1) tri2_3(1) tri2_1(1)],[tri2_1(2)...
                 tri2_2(2) tri2_3(2) tri2_1(2)],[tri2_1(3) tri2_2(3) tri2_3(3)...
                 tri2_1(3)], 'Color',[0 0 1], 'LineWidth', 2, 'parent', agraph);
-            L9=line([tri1_1(1) T_02(1,4) ],[tri1_1(2) T_02(2,4)],[tri1_1(3) T_02(3,4)],'Color',[0 1 0],'LineWidth', 3, 'parent', agraph)
-            L10=line([tri1_2(1) T_02(1,4) ],[tri1_2(2) T_02(2,4)],[tri1_2(3) T_02(3,4)],'Color',[1 0 0],'LineWidth', 3, 'parent', agraph)
-            L11=line([tri1_3(1) T_02(1,4) ],[tri1_3(2) T_02(2,4)],[tri1_3(3) T_02(3,4)],'LineWidth', 3, 'parent', agraph)
-            L12=line([tri2_1(1) T_03(1,4)],[tri2_1(2) T_03(2,4)],[tri2_1(3) T_03(3,4)],'Color',[0 1 0],'LineWidth', 3, 'parent', agraph)
-            L13=line([tri2_2(1) T_03(1,4)],[tri2_2(2) T_03(2,4)],[tri2_2(3) T_03(3,4)],'Color',[1 0 0],'LineWidth', 3, 'parent', agraph)
-            L14=line([tri2_3(1) T_03(1,4)],[tri2_3(2) T_03(2,4)],[tri2_3(3) T_03(3,4)],'LineWidth', 3, 'parent', agraph)
+            L9=line([tri1_1(1) T_02(1,4) ],[tri1_1(2) T_02(2,4)],[tri1_1(3) T_02(3,4)],'Color',[0 1 0],'LineWidth', 3, 'parent', agraph);
+            L10=line([tri1_2(1) T_02(1,4) ],[tri1_2(2) T_02(2,4)],[tri1_2(3) T_02(3,4)],'Color',[1 0 0],'LineWidth', 3, 'parent', agraph);
+            L11=line([tri1_3(1) T_02(1,4) ],[tri1_3(2) T_02(2,4)],[tri1_3(3) T_02(3,4)],'LineWidth', 3, 'parent', agraph);
+            L12=line([tri2_1(1) T_03(1,4)],[tri2_1(2) T_03(2,4)],[tri2_1(3) T_03(3,4)],'Color',[0 1 0],'LineWidth', 3, 'parent', agraph);
+            L13=line([tri2_2(1) T_03(1,4)],[tri2_2(2) T_03(2,4)],[tri2_2(3) T_03(3,4)],'Color',[1 0 0],'LineWidth', 3, 'parent', agraph);
+            L14=line([tri2_3(1) T_03(1,4)],[tri2_3(2) T_03(2,4)],[tri2_3(3) T_03(3,4)],'LineWidth', 3, 'parent', agraph);
 
         end
         xlabel('X0');
@@ -844,8 +844,55 @@ FK;
         zlabel('Z0');
         grid('on')
         axis([-1.5 1.5 -1.5 1.5 0 3])
+        axis vis3d
         az = 15;
         el = 15;
         view(az, el);
+    end
+    % preforms FK over a period of time, used for  when input is not the 
+    % next adjacent value (in the edit fields), index is the links number 
+    % so no 3, 6 or 9
+    function FK_over_time(index)
+        if index == 1
+            temp = l11_len;
+            for l11_len = l11_temp:0.01:temp
+                FK;
+                pause(0.1);
+            end
+        elseif index == 2
+            temp = l12_len;
+            for l12_len = l12_temp:0.01:temp
+                FK;
+                pause(0.1);
+            end
+        elseif index == 4
+            temp = l21_len;
+            for l21_len = l21_temp:0.01:temp
+                FK;
+                pause(0.1);
+            end
+        elseif index == 5
+            temp = l22_len;
+            for l22_len = l22_temp:0.01:temp
+                FK;
+                pause(0.1);
+            end
+        elseif index == 7
+            temp = l31_len;
+            for l31_len = l31_temp:0.01:temp
+                FK;
+                pause(0.1);
+            end
+        elseif index == 8
+            temp = l32_len;
+            for l32_len = l32_temp:0.01:temp
+                FK;
+                pause(0.1);
+            end
+        end
+    end
+    % Inverse Kinematic Function
+    function IK
+        
     end
 end
