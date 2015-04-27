@@ -500,36 +500,42 @@ FK;
         l11_len = get(hObject, 'Value');
         set(l1_edit, 'String', l11_len);
         FK;
+        l11_temp = l11_len;
     end
 
     function s2_callback(hObject, callbackdata)
         l12_len = get(hObject, 'Value');
         set(l2_edit, 'String', l12_len);
         FK;
+        l12_temp = l12_len;
     end
 
     function s4_callback(hObject, callbackdata)
         l21_len = get(hObject, 'Value');
         set(l4_edit, 'String', l21_len);
         FK;
+        l21_temp = l21_len;
     end
 
     function s5_callback(hObject, callbackdata)
         l22_len = get(hObject, 'Value');
         set(l5_edit, 'String', l22_len);
         FK;
+        l22_temp = l22_len;
     end
 
     function s7_callback(hObject, callbackdata)
         l31_len = get(hObject, 'Value');
         set(l7_edit, 'String', l31_len);
         FK;
+        l31_temp = l31_len;
     end
 
     function s8_callback(hObject, callbackdata)
         l32_len = get(hObject, 'Value');
         set(l8_edit, 'String', l32_len);
         FK;
+        l32_temp = l32_len;
     end
     
     % edit text callback
@@ -537,7 +543,7 @@ FK;
         l11_len = str2double(get(hObject, 'String'));
         l11_len = valid_entry(l11_len, l11_limit, l11_temp, l1_edit);
         set(l1_slider, 'Value', l11_len);
-        FK_over_time(1);
+        FK_over_time(1, l11_len, l11_temp);
         l11_temp = l11_len;
     end 
 
@@ -545,7 +551,7 @@ FK;
         l12_len = str2double(get(hObject, 'String'));
         l12_len = valid_entry(l12_len, l12_limit, l12_temp, l2_edit);
         set(l2_slider, 'Value', l12_len);
-        FK_over_time(2);
+        FK_over_time(2, l12_len, l12_temp);
         l12_temp = l12_len;
     end 
 
@@ -553,7 +559,7 @@ FK;
         l21_len = str2double(get(hObject, 'String'));
         l21_len = valid_entry(l21_len, l21_limit, l21_temp, l4_edit);
         set(l4_slider, 'Value', l21_len);
-        FK_over_time(4);
+        FK_over_time(4, l21_len, l21_temp);
         l21_temp = l21_len;
     end 
 
@@ -561,7 +567,7 @@ FK;
         l22_len = str2double(get(hObject, 'String'));
         l22_len = valid_entry(l22_len, l22_limit, l22_temp, l5_edit);
         set(l5_slider, 'Value', l22_len);
-        FK_over_time(5);
+        FK_over_time(5, l22_len, l22_temp);
         l22_temp = l22_len;
     end 
 
@@ -569,7 +575,7 @@ FK;
         l31_len = str2double(get(hObject, 'String'));
         l31_len = valid_entry(l31_len, l31_limit, l31_temp, l7_edit);
         set(l7_slider, 'Value', l31_len);
-        FK_over_time(7);
+        FK_over_time(7, l31_len, l31_temp);
         l31_temp = l31_len;
     end 
 
@@ -577,7 +583,7 @@ FK;
         l32_len = str2double(get(hObject, 'String'));
         l32_len = valid_entry(l32_len, l32_limit, l32_temp, l8_edit);
         set(l8_slider, 'Value', l32_len);
-        FK_over_time(8);
+        FK_over_time(8, l32_len, l32_temp);
         l32_temp = l32_len;
     end 
 
@@ -843,54 +849,61 @@ FK;
         ylabel('Y0');
         zlabel('Z0');
         grid('on')
-        axis([-1.5 1.5 -1.5 1.5 0 3])
-        axis vis3d
+        axis([-2.5 2.5 -2.5 2.5 0 5])
+        %axis vis3d
         az = 15;
         el = 15;
         view(az, el);
     end
     % preforms FK over a period of time, used for  when input is not the 
     % next adjacent value (in the edit fields), index is the links number 
-    % so no 3, 6 or 9
-    function FK_over_time(index)
-        if index == 1
-            temp = l11_len;
-            for l11_len = l11_temp:0.01:temp
-                FK;
-                pause(0.1);
-            end
-        elseif index == 2
-            temp = l12_len;
-            for l12_len = l12_temp:0.01:temp
-                FK;
-                pause(0.1);
-            end
-        elseif index == 4
-            temp = l21_len;
-            for l21_len = l21_temp:0.01:temp
-                FK;
-                pause(0.1);
-            end
-        elseif index == 5
-            temp = l22_len;
-            for l22_len = l22_temp:0.01:temp
-                FK;
-                pause(0.1);
-            end
-        elseif index == 7
-            temp = l31_len;
-            for l31_len = l31_temp:0.01:temp
-                FK;
-                pause(0.1);
-            end
-        elseif index == 8
-            temp = l32_len;
-            for l32_len = l32_temp:0.01:temp
-                FK;
-                pause(0.1);
-            end
+    % so no 3, 6 or 9. There has to be a nicer way of doing this ._.
+    function FK_over_time(index, input, old_input)
+        res = 0.01;
+        if input < old_input
+            res = -res;
         end
+        switch index
+            case 1
+                temp = l11_len;       
+                for l11_len = l11_temp:res:temp
+                    FK;
+                    pause(0.1);
+                end
+            case 2
+                temp = l12_len;
+                for l12_len = l12_temp:0.01:temp
+                    FK;
+                    pause(0.1);
+                end
+            case 4
+                temp = l21_len;
+                for l21_len = l21_temp:0.01:temp
+                    FK;
+                    pause(0.1);
+                end
+            case 5
+                temp = l22_len;
+                for l22_len = l22_temp:0.01:temp
+                    FK;
+                    pause(0.1);
+                end
+            case 7
+                temp = l31_len;
+                for l31_len = l31_temp:0.01:temp
+                    FK;
+                    pause(0.1);
+                end
+            case 8
+                temp = l32_len;
+                for l32_len = l32_temp:0.01:temp
+                    FK;
+                    pause(0.1);
+                end
+        end
+
     end
+
     % Inverse Kinematic Function
     function IK
         
