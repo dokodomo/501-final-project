@@ -1,8 +1,8 @@
 function sim501
 % Clear everything
-close;
-clear;
-clc;
+clc
+clear all
+close all
 
 % Set initial values
 old_l10 = 1;
@@ -331,22 +331,22 @@ l8_edit = uicontrol('parent', panel2,...
 
 %% Inv Kin Panel - Text
 % x, y, z position on golbal frame
-x_pos
+% x pos label
 uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'X:',...
     'fontweight', 'bold',...
     'fontsize', 12,...
     'Position', [p3_size(3)*.1 p3_size(4)*.5 30 20]);
- 
-y_pos = uicontrol('parent', panel3,...
+% y pos label 
+uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'Y:',...
     'fontweight', 'bold',...
     'fontsize', 12,...
     'Position', [p3_size(3)*.4 p3_size(4)*.5 30 20]);
-
-z_pos = uicontrol('parent', panel3,...
+% z pos label
+uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'Z:',...
     'fontweight', 'bold',...
@@ -354,34 +354,36 @@ z_pos = uicontrol('parent', panel3,...
     'Position', [p3_size(3)*.7 p3_size(4)*.5 30 20]);
 
 % Direction (unit vector form)
-xdir = uicontrol('parent', panel3,...
+% x dir label
+uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'X:',...
     'fontweight', 'bold',...
     'fontsize', 12,...
     'Position', [p3_size(3)*.1 p3_size(4)*.1 30 20]);
-ydir = uicontrol('parent', panel3,...
+% y dir label
+uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'Y:',...
     'fontweight', 'bold',...
     'fontsize', 12,...
     'Position', [p3_size(3)*.4 p3_size(4)*.1 30 20]);
-zdir = uicontrol('parent', panel3,...
+% z dir label
+uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'Z:',...
     'fontweight', 'bold',...
     'fontsize', 12,...
     'Position', [p3_size(3)*.7 p3_size(4)*.1 30 20]);
-
-% Labels
-ee_pos = uicontrol('parent', panel3,...
+% EE pos label
+uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'EE pos',...
     'fontweight', 'bold',...
     'fontsize', 11,...
     'Position', [0 p3_size(4)*.7 100 20]);
-
-ee_dir = uicontrol('parent', panel3,...
+% EE dir label
+uicontrol('parent', panel3,...
     'style', 'text',...
     'string', 'EE dir (unit vector)',...
     'fontweight', 'bold',...
@@ -429,7 +431,7 @@ zdir_edit = uicontrol('parent', panel3,...
     'callback', @zdir_callback);
 
 %% Graphical display
-graph = axes('title', 'a graph',...
+axes('title', 'a graph',...
     'units','pixels',...
     'position', [figsize(3)*.4 figsize(4)*.1 figsize(4)*.75 figsize(4)*.75]);
     
@@ -495,6 +497,7 @@ pb2 = uicontrol('parent', panel1,...
     function s1_callback(hObject, callbackdata)
         l11_len = get(hObject, 'Value');
         set(l1_edit, 'String', l11_len);
+        FK;
     end
 
     function s2_callback(hObject, callbackdata)
@@ -734,5 +737,93 @@ pb2 = uicontrol('parent', panel1,...
         end
         set(editbox, 'String', value);
     end
+    % Forward Kinematic Function
+    function FK
+    %% Defining parameters
+        l01 = l10_len;             % L0-from the base of the frame to the tip
+        l02 = l20_len;             % L0-from the base of the frame to the tip
+        l03 = l30_len;             % L0-from the base of the frame to the tip
+        l_11_0 = l01/cosd(30);  % L1- when the L1=L2=L3
+        l_12_0 = l02/cosd(30);  % L2- when the L1=L2=L3
+        l_13_0 = l03/cosd(30);  % L3- when the L1=L2=L3
+        a1 = l_11_0*sind(30);   % the distance from the base of the actuator to base
+        a2 = l_12_0*sind(30);
+        a3 = l_13_0*sind(30);
+        
+        %% Plotting the base of the parallel manipulator
+        line([a1 -a1*cosd(60) -a1*cosd(60) a1],[0 -a1*sind(60) a1*sind(60) 0],[0 0 0 0],...
+            'Color',[0 0 1], 'LineWidth', 2);
 
+        %% Forward Position Kinematics 
+        x1=(l10_len^2+a1^2-l11_len^2)/(2*a1);        
+        y1=(-l12_len^2+l01^2+a1^2+2*a1*cosd(60)*x1)/(2*a1*sind(60));
+        z1=abs((l01^2-x1^2-y1^2)^0.5);
+
+        x2=(l02^2+a2^2-l_21^2)/(2*a2);        
+        y2=(-l_22^2+l02^2+a2^2+2*a2*cosd(60)*x2)/(2*a2*sind(60));
+        z2=abs((l02^2-x2^2-y2^2)^0.5);
+
+        x3=(l03^2+a3^2-l_31^2)/(2*a3);        
+        y3=(-l_32^2+l03^2+a3^2+2*a3*cosd(60)*x3)/(2*a3*sind(60));
+        z3=abs((l03^2-x3^2-y3^2)^0.5);
+
+        theta_z_1=atan2(y1,x1);
+        theta_y_1=atan2((x1^2+y1^2)^1/2,z1);
+        theta_z_2=atan2(y2,x2);
+        theta_y_2=atan2((x2^2+y2^2)^1/2,z2);
+        theta_z_3=atan2(y3,x3);
+        theta_y_3=atan2((x3^2+y3^2)^1/2,z3);
+        T_01=[cos(theta_z_1)*cos(theta_y_1) -sin(theta_z_1) cos(theta_z_1)*sin(theta_y_1) x1;
+            sin(theta_z_1)*cos(theta_y_1) cos(theta_z_1) sin(theta_z_1)*sin(theta_y_1) y1;
+            -sin(theta_y_1) 0 cos(theta_y_1) z1;
+            0 0 0 1];
+        T_12=[cos(theta_z_2)*cos(theta_y_2) -sin(theta_z_2) cos(theta_z_2)*sin(theta_y_2) x2;
+            sin(theta_z_2)*cos(theta_y_2) cos(theta_z_2) sin(theta_z_2)*sin(theta_y_2) y2;
+            -sin(theta_y_2) 0 cos(theta_y_2) z2;
+            0 0 0 1];
+        T_23=[cos(theta_z_3)*cos(theta_y_3) -sin(theta_z_3) cos(theta_z_3)*sin(theta_y_3) x3;
+            sin(theta_z_3)*cos(theta_y_3) cos(theta_z_3) sin(theta_z_3)*sin(theta_y_3) y3;
+            -sin(theta_y_3) 0 cos(theta_y_3) z3;
+            0 0 0 1];
+        T_02=T_01*T_12;
+        T_03=T_01*T_12*T_23;
+
+        tri1_1=T_01*[a1 0 0 1]';
+        tri1_2=T_01*[-a1*cosd(60) a1*sind(60) 0 1]';
+        tri1_3=T_01*[-a1*cosd(60) -a1*sind(60) 0 1]';
+
+        tri2_1=T_02*[a2 0 0 1]';
+        tri2_2=T_02*[-a2*cosd(60) a1*sind(60) 0 1]';
+        tri2_3=T_02*[-a2*cosd(60) -a1*sind(60) 0 1]';
+        %% Confirming that L0 is not out of bounds
+        q=abs((x1^2+y1^2+z1^2)^0.5);
+
+        if q < 1.01
+            %% Plotting the manipulator
+            L1=line([a1 x1],[0 y1],[0 z1],'Color',[0 1 0],'LineWidth', 3);
+            L2=line([-a1*cosd(60) x1],[a1*sind(60) y1],[0 z1],'Color',[1 0 0],'LineWidth', 3);
+            L3=line([-a1*cosd(60) x1],[-a1*sind(60) y1],[0 z1],'LineWidth', 3);
+            L4=line([0 x1],[0 y1],[0 z1]);
+            L5=line([T_01(1,4) T_02(1,4)],[T_01(2,4) T_02(2,4)],[T_01(3,4) T_02(3,4)]);
+            L6=line([T_02(1,4) T_03(1,4)],[T_02(2,4) T_03(2,4)],[T_02(3,4) T_03(3,4)]);
+            L7=line([tri1_1(1) tri1_2(1) tri1_3(1) tri1_1(1)],[tri1_1(2)...
+                tri1_2(2) tri1_3(2) tri1_1(2)],[tri1_1(3) tri1_2(3) tri1_3(3)...
+                tri1_1(3)], 'Color',[0 0 1], 'LineWidth', 2);
+            L8=line([tri2_1(1) tri2_2(1) tri2_3(1) tri2_1(1)],[tri2_1(2)...
+                tri2_2(2) tri2_3(2) tri2_1(2)],[tri2_1(3) tri2_2(3) tri2_3(3)...
+                tri2_1(3)], 'Color',[0 0 1], 'LineWidth', 2);
+            L9=line([tri1_1(1) T_02(1,4) ],[tri1_1(2) T_02(2,4)],[tri1_1(3) T_02(3,4)])
+            L10=line([tri1_2(1) T_02(1,4) ],[tri1_2(2) T_02(2,4)],[tri1_2(3) T_02(3,4)])
+            L11=line([tri1_3(1) T_02(1,4) ],[tri1_3(2) T_02(2,4)],[tri1_3(3) T_02(3,4)])
+            L12=line([tri2_1(1) T_03(1,4)],[tri2_1(2) T_03(2,4)],[tri2_1(3) T_03(3,4)])
+            L13=line([tri2_2(1) T_03(1,4)],[tri2_2(2) T_03(2,4)],[tri2_2(3) T_03(3,4)])
+            L14=line([tri2_3(1) T_03(1,4)],[tri2_3(2) T_03(2,4)],[tri2_3(3) T_03(3,4)])
+
+        end
+        xlabel('X0');
+        ylabel('Y0');
+        zlabel('Z0');
+        grid
+        axis vis3d
+    end
 end
