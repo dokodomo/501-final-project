@@ -5,6 +5,8 @@ clear
 close all
 
 % Set initial values
+xpos = 0.0; ypos = 0.0; zpos = 3.0;
+old_x = xpos; old_y = ypos; old_z = zpos;
 old_l10 = 1;
 old_l20 = 1;
 old_l30 = 1;
@@ -394,19 +396,19 @@ uicontrol('parent', panel3,...
 % X, Y, Z position editable fields
 x_edit = uicontrol('parent', panel3,...
     'style', 'edit',...
-    'string', 0,...
+    'string', xpos,...
     'position', [p3_size(3)*.2 p3_size(4)*.5 35 20],...
     'callback', @xpos_callback);
 
 y_edit = uicontrol('parent', panel3,...
     'style', 'edit',...
-    'string', 0,...
+    'string', ypos,...
     'position', [p3_size(3)*.5 p3_size(4)*.5 35 20],...
     'callback', @ypos_callback);
 
 z_edit = uicontrol('parent', panel3,...
     'style', 'edit',...
-    'string', 0,...
+    'string', zpos,...
     'position', [p3_size(3)*.8 p3_size(4)*.5 35 20],...
     'callback', @zpos_callback);
 
@@ -501,6 +503,7 @@ FK;
         set(l1_edit, 'String', l11_len);
         FK;
         l11_temp = l11_len;
+        update;
     end
 
     function s2_callback(hObject, callbackdata)
@@ -508,6 +511,7 @@ FK;
         set(l2_edit, 'String', l12_len);
         FK;
         l12_temp = l12_len;
+        update;
     end
 
     function s4_callback(hObject, callbackdata)
@@ -515,6 +519,7 @@ FK;
         set(l4_edit, 'String', l21_len);
         FK;
         l21_temp = l21_len;
+        update;
     end
 
     function s5_callback(hObject, callbackdata)
@@ -522,6 +527,7 @@ FK;
         set(l5_edit, 'String', l22_len);
         FK;
         l22_temp = l22_len;
+        update;
     end
 
     function s7_callback(hObject, callbackdata)
@@ -529,6 +535,7 @@ FK;
         set(l7_edit, 'String', l31_len);
         FK;
         l31_temp = l31_len;
+        update;
     end
 
     function s8_callback(hObject, callbackdata)
@@ -536,6 +543,7 @@ FK;
         set(l8_edit, 'String', l32_len);
         FK;
         l32_temp = l32_len;
+        update;
     end
     
     % edit text callback
@@ -545,6 +553,7 @@ FK;
         set(l1_slider, 'Value', l11_len);
         FK_over_time(1, l11_len, l11_temp);
         l11_temp = l11_len;
+        update;
     end 
 
     function e2_callback(hObject, callbackdata)
@@ -553,6 +562,7 @@ FK;
         set(l2_slider, 'Value', l12_len);
         FK_over_time(2, l12_len, l12_temp);
         l12_temp = l12_len;
+        update;
     end 
 
     function e4_callback(hObject, callbackdata)
@@ -561,6 +571,7 @@ FK;
         set(l4_slider, 'Value', l21_len);
         FK_over_time(4, l21_len, l21_temp);
         l21_temp = l21_len;
+        update;
     end 
 
     function e5_callback(hObject, callbackdata)
@@ -569,6 +580,7 @@ FK;
         set(l5_slider, 'Value', l22_len);
         FK_over_time(5, l22_len, l22_temp);
         l22_temp = l22_len;
+        update;
     end 
 
     function e7_callback(hObject, callbackdata)
@@ -577,6 +589,7 @@ FK;
         set(l7_slider, 'Value', l31_len);
         FK_over_time(7, l31_len, l31_temp);
         l31_temp = l31_len;
+        update;
     end 
 
     function e8_callback(hObject, callbackdata)
@@ -585,6 +598,7 @@ FK;
         set(l8_slider, 'Value', l32_len);
         FK_over_time(8, l32_len, l32_temp);
         l32_temp = l32_len;
+        update;
     end 
 
 %% Options Panel Callback Functions
@@ -597,8 +611,8 @@ FK;
         l11_len = l11_len / old_l10 * l10_len;
         l12_len = l12_len / old_l10 * l10_len;
         %l13_len = l13_len * l10_len;
-        update;
         FK;
+        update;
     end
 
     function l20_edit_callback(hObject, callbackdata)
@@ -609,8 +623,8 @@ FK;
         l23_limit = l23_limit / old_l20 * l20_len;
         l21_len = l21_len / old_l20 * l20_len;
         l22_len = l22_len / old_l20 * l20_len;
-        update;
         FK;
+        update;
     end
 
     function l30_edit_callback(hObject, callbackdata)
@@ -621,8 +635,8 @@ FK;
         l33_limit = l33_limit / old_l30 * l30_len;
         l31_len = l31_len / old_l30 * l30_len;
         l32_len = l32_len / old_l30 * l30_len;
-        update;
         FK;
+        update;
     end
 
     function home_callback(hObject, callbackdata)
@@ -637,6 +651,7 @@ FK;
 
 %% Inv Kin Panel Callback Functions
     function xpos_callback(hObject, callbackdata)
+        IK([xpos, ypos, zpos], [0,0,0]);
     end
     function ypos_callback(hObject, callbackdata)
     end
@@ -689,9 +704,11 @@ FK;
         set(l8_max, 'String', round(l32_limit(2),3));
         set(l9_min, 'String', round(l33_limit(1),3));
         set(l9_max, 'String', round(l33_limit(2),3));
-        old_l10 = l10_len;
-        old_l20 = l20_len;
-        old_l30 = l30_len;
+        set(x_edit, 'string', xpos);
+        set(y_edit, 'string', ypos);
+        set(z_edit, 'string', zpos);
+        old_l10 = l10_len; old_l20 = l20_len; old_l30 = l30_len;
+        old_x = xpos; old_y = ypos; old_z = zpos;
         refresh;
     end
     % Return to initial position (vertically straight)
@@ -714,6 +731,8 @@ FK;
         l31_limit = range3;   % Min and Max of the acctuators
         l32_limit = range3;
         l33_limit = range3;
+        
+        xpos = 0; ypos = 0; zpos = l10_len + l20_len + l30_len;
         update;
     end
     % Retrun to initial position with initial values
@@ -823,7 +842,7 @@ FK;
         %% Confirming that L0 is not out of bounds
         q=abs((x1^2+y1^2+z1^2)^0.5);
 
-        if q < 1.01
+        if q < l01+0.1
             %% Plotting the manipulator
             L1=line([a1 x1],[0 y1],[0 z1],'Color',[0 1 0],'LineWidth', 3, 'parent', agraph);
             L2=line([-a1*cosd(60) x1],[a1*sind(60) y1],[0 z1],'Color',[1 0 0],'LineWidth', 3, 'parent', agraph);
@@ -845,15 +864,16 @@ FK;
             L14=line([tri2_3(1) T_03(1,4)],[tri2_3(2) T_03(2,4)],[tri2_3(3) T_03(3,4)],'LineWidth', 3, 'parent', agraph);
 
         end
-        xlabel('X0');
-        ylabel('Y0');
-        zlabel('Z0');
+        xlabel('X');
+        ylabel('Y');
+        zlabel('Z');
         grid('on')
         axis([-2.5 2.5 -2.5 2.5 0 5])
         %axis vis3d
         az = 15;
         el = 15;
         view(az, el);
+        xpos = T_03(1,4); ypos = T_03(2,4); zpos = T_03(3,4);
     end
     % preforms FK over a period of time, used for  when input is not the 
     % next adjacent value (in the edit fields), index is the links number 
@@ -905,7 +925,122 @@ FK;
     end
 
     % Inverse Kinematic Function
-    function IK
-        
+    function [ P1,P2 ] = fun_tri_IK( P3,Phi3,L0 )
+        %FUN_TRI_IK Summary of this function goes here
+        %   Detailed explanation goes here
+        x3=P3(1);y3=P3(2);z3=P3(3);
+        tx=Phi3(1);ty=Phi3(2);tz=Phi3(3);
+        eps=1e-6;
+
+        %% solve P2
+        Rz=[cos(tz) -sin(tz) 0;
+            sin(tz) cos(tz) 0;
+            0 0 1;];
+
+        Ry=[cos(ty) 0 sin(ty);
+            0 1 0;
+            -sin(ty) 0 cos(ty);];
+
+        Rx=[1 0 0;
+            0 cos(tx) -sin(tx);
+            0 sin(tx) cos(tx);];
+
+        R03=Rz*Ry*Rx;
+
+        T=[R03,[x3,y3,z3].';0 0 0 1];
+
+        P2=T*[0,0,-L0,1].';
+        P2=P2(1:3);
+        x2=P2(1);y2=P2(2);z2=P2(3);
+
+        %% solve P1
+        x1=(x2*y2^2 + x2*z2^2 + x2^3 - 2*x2*z2*(z2/2 + (-((x2^2 + y2^2)*(- 4*L0^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2))/(2*x2^2 + 2*y2^2+eps);
+        y1=(x2^2*y2 + y2*z2^2 + y2^3 - 2*y2*z2*(z2/2 + (-((x2^2 + y2^2)*(- 4*L0^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2))/(2*x2^2 + 2*y2^2+eps);
+        z1=z2/2 + (-((x2^2 + y2^2)*(- 4*L0^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2;
+      
+        P1=[x1;y1;z1];
+
+    end
+    % Plots the InvKin
+    function IK(Pos, Ang)
+        cla
+        xe = old_x:0.1:Pos(1); ye = Pos(2); ze = Pos(3);
+        tx = Ang(1); ty = Ang(2); tz = Ang(3);
+        L0 = 3;
+        T=@(theta,phi) [ cos(phi)*cos(theta), -sin(theta), cos(theta)*sin(phi), L0*cos(theta)*sin(phi)
+        cos(phi)*sin(theta),  cos(theta), sin(phi)*sin(theta), L0*sin(phi)*sin(theta)
+            -sin(phi),            0,             cos(phi),             L0*cos(phi)
+                     0,            0,                     0,              1          ];
+        for i=1:length(xe)
+            P3=[xe(i);ye;ze];
+            Phi3=[tx;ty;tz];
+            [P1,P2]=fun_tri_IK(P3,Phi3,L0);
+
+            tz1=atan(P1(2)/P1(1));
+            ty1=atan(P1(1)/P1(3)/cos(tz1));
+
+            T1=T(tz1,ty1);
+
+            R1=T1(1:3,1:3);
+            PP2=R1.'*(P2-P1);
+            tz2=atan(PP2(2)/PP2(1));
+            ty2=atan(PP2(1)/cos(tz2)/PP2(3));
+
+            T2=T1*T(tz2,ty2);
+
+          % draw the base triangle   
+            a=1;
+            A=[a,0,0]';
+            B=[a*cosd(120),a*sind(120),0]';
+            C=[a*cosd(240),a*sind(240),0]';
+
+            A2=T1*[A;1];A2=A2(1:3);
+            B2=T1*[B;1];B2=B2(1:3);
+            C2=T1*[C;1];C2=C2(1:3);
+
+            A3=T2*[A;1];A3=A3(1:3);
+            B3=T2*[B;1];B3=B3(1:3);
+            C3=T2*[C;1];C3=C3(1:3); 
+
+            xa=A(1);ya=A(2);za=A(3);
+            xb=B(1);yb=B(2);zb=B(3);
+            xc=C(1);yc=C(2);zc=C(3);
+
+            x2a=A2(1);y2a=A2(2);z2a=A2(3);
+            x2b=B2(1);y2b=B2(2);z2b=B2(3);
+            x2c=C2(1);y2c=C2(2);z2c=C2(3);
+
+            x3a=A3(1);y3a=A3(2);z3a=A3(3);
+            x3b=B3(1);y3b=B3(2);z3b=B3(3);
+            x3c=C3(1);y3c=C3(2);z3c=C3(3);
+
+            hold off
+                surf([xa,xa;xb,xc],[ya,ya;yb,yc],[za,za;zb,zc],5)
+            hold on
+                surf([x2a,x2a;x2b,x2c],[y2a,y2a;y2b,y2c],[z2a,z2a;z2b,z2c],5)
+                surf([x3a,x3a;x3b,x3c],[y3a,y3a;y3b,y3c],[z3a,z3a;z3b,z3c],5)
+
+            %draw link L1,L2,L3    
+            plot3([xa,P1(1)],[ya,P1(2)],[za,P1(3)],'b-','linewidth',3);    
+            plot3([xb,P1(1)],[yb,P1(2)],[zb,P1(3)],'b-','linewidth',3);
+            plot3([xc,P1(1)],[yc,P1(2)],[zc,P1(3)],'b-','linewidth',3);
+
+            plot3([x2a,P2(1)],[y2a,P2(2)],[z2a,P2(3)],'b-','linewidth',3);    
+            plot3([x2b,P2(1)],[y2b,P2(2)],[z2b,P2(3)],'b-','linewidth',3);
+            plot3([x2c,P2(1)],[y2c,P2(2)],[z2c,P2(3)],'b-','linewidth',3);    
+
+            plot3([x3a,P3(1)],[y3a,P3(2)],[z3a,P3(3)],'b-','linewidth',3);    
+            plot3([x3b,P3(1)],[y3b,P3(2)],[z3b,P3(3)],'b-','linewidth',3);
+            plot3([x3c,P3(1)],[y3c,P3(2)],[z3c,P3(3)],'b-','linewidth',3);    
+            %draw link L0
+            plot3([0,P1(1),P2(1),P3(1)],[0,P1(2),P2(2),P3(2)],[0,P1(3),P2(3),P3(3)],'r-*','linewidth',3);
+
+            grid on
+            axis([-0.2,7.2,-3.2,3.2,-0.2,6.2])
+            xlabel('x')
+            ylabel('y')
+            zlabel('z')
+            pause(0.1)
+        end
     end
 end
