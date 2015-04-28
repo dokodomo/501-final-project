@@ -5,6 +5,7 @@ clear
 close all
 
 % Set initial values
+mag = 3;
 xpos = 0.0; ypos = 0.0; zpos = 3.0;
 old_x = xpos; old_y = ypos; old_z = zpos;
 old_l10 = 1;
@@ -12,21 +13,21 @@ old_l20 = 1;
 old_l30 = 1;
 
 l10_len = 1; l11_len = l10_len/cosd(30); l12_len = l11_len; l13_len = l11_len; 
-range1 = [2/3*l10_len/cosd(30), 4/3*l10_len/cosd(30)];
+range1 = [2/3*l10_len/cosd(30), 5/4*l10_len/cosd(30)];
 l11_limit = range1;   % Min and Max of the acctuators
 l12_limit = range1;
 l13_limit = range1;
 l11_temp = l11_len; l12_temp = l12_len;
 
 l20_len = 1; l21_len = l20_len/cosd(30); l22_len = l21_len; l23_len = l21_len; 
-range2 = [2/3*l20_len/cosd(30), 4/3*l20_len/cosd(30)];
+range2 = [2/3*l20_len/cosd(30), 5/4*l20_len/cosd(30)];
 l21_limit = range2;
 l22_limit = range2;
 l23_limit = range2;
 l21_temp = l21_len; l22_temp = l22_len;
 
 l30_len = 1; l31_len = l30_len/cosd(30); l32_len = l31_len; l33_len = l31_len; 
-range3 = [2/3*l30_len/cosd(30), 4/3*l30_len/cosd(30)];
+range3 = [2/3*l30_len/cosd(30), 5/4*l30_len/cosd(30)];
 l31_limit = range3;
 l32_limit = range3;
 l33_limit = range3;
@@ -666,10 +667,11 @@ FK;
     function zpos_callback(hObject, callbackdata)
         zpos = str2double(get(hObject, 'String'));
     end
+    % Calc Inv Kin based on above inputs
     function start_callback(hObject, callbackdata)
-        %IK([xpos, ypos, zpos], [0,pi/3,-pi/6]);
-        N = 40;
-        IK([2.5:3.5/N:6, -2, 6], [0,pi/3,-pi/6]);
+        IK([xpos, ypos, zpos], [0,pi/3,-pi/6]);%[acos(xpos/mag), acos(ypos/mag), acos(zpos/mag)]);%[0,pi/3,-pi/6]);
+        %N = 40;
+        %IK([2.5:3.5/N:6, -2, 6], [0,pi/3,-pi/6]);
         old_x = xpos;
         old_y = ypos;
         old_z = zpos;
@@ -727,6 +729,7 @@ FK;
         end
         set(x_edit, 'string', xpos);
         set(y_edit, 'string', ypos);
+        mag = sqrt(xpos^2 * ypos^2 * zpos^2);
         old_l10 = l10_len; old_l20 = l20_len; old_l30 = l30_len;
         old_x = xpos; old_y = ypos; old_z = zpos;
         refresh;
@@ -945,7 +948,7 @@ FK;
     end
 
     % Inverse Kinematic Function
-    function [ P1,P2 ] = fun_tri_IK( P3,Phi3,L0 )
+    function [ P1,P2 ] = fun_tri_IK( P3,Phi3,L10, L20)
         %FUN_TRI_IK Summary of this function goes here
         %   Detailed explanation goes here
         x3=P3(1);y3=P3(2);z3=P3(3);
@@ -969,33 +972,37 @@ FK;
 
         T=[R03,[x3,y3,z3].';0 0 0 1];
 
-        P2=T*[0,0,-L0,1].';
+        P2=T*[0,0,-L20,1].';
         P2=P2(1:3);
         x2=P2(1);y2=P2(2);z2=P2(3);
 
         %% solve P1
-        x1=(x2*y2^2 + x2*z2^2 + x2^3 - 2*x2*z2*(z2/2 + (-((x2^2 + y2^2)*(- 4*L0^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2))/(2*x2^2 + 2*y2^2+eps);
-        y1=(x2^2*y2 + y2*z2^2 + y2^3 - 2*y2*z2*(z2/2 + (-((x2^2 + y2^2)*(- 4*L0^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2))/(2*x2^2 + 2*y2^2+eps);
-        z1=z2/2 + (-((x2^2 + y2^2)*(- 4*L0^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2;
+        x1=(x2*y2^2 + x2*z2^2 + x2^3 - 2*x2*z2*(z2/2 + (-((x2^2 + y2^2)*(- 4*L10^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2))/(2*x2^2 + 2*y2^2+eps);
+        y1=(x2^2*y2 + y2*z2^2 + y2^3 - 2*y2*z2*(z2/2 + (-((x2^2 + y2^2)*(- 4*L10^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2))/(2*x2^2 + 2*y2^2+eps);
+        z1=z2/2 + (-((x2^2 + y2^2)*(- 4*L10^2 + x2^2 + y2^2 + z2^2))/(x2^2 + y2^2 + z2^2+eps))^(1/2)/2;
       
         P1=[x1;y1;z1];
 
     end
     % Plots the InvKin
     function IK(Pos, Ang)
-        cla
-        %xe = old_x:0.1:Pos(1); ye = Pos(2); ze = Pos(3);
-        xe = Pos(1); ye = Pos(2); ze = Pos(3);
+        xe = old_x:(Pos(1)-old_x)/30:Pos(1);
+        ye = old_y:(Pos(1)-old_y)/30:Pos(2);
+        ze = old_z:(Pos(1)-old_z)/30:Pos(3);
+        %xe = Pos(1); ye = Pos(2); ze = Pos(3);
         tx = Ang(1); ty = Ang(2); tz = Ang(3);
-        L0 = 3;
-        T=@(theta,phi) [ cos(phi)*cos(theta), -sin(theta), cos(theta)*sin(phi), L0*cos(theta)*sin(phi)
-        cos(phi)*sin(theta),  cos(theta), sin(phi)*sin(theta), L0*sin(phi)*sin(theta)
-            -sin(phi),            0,             cos(phi),             L0*cos(phi)
+        L10 = l10_len;
+        L20 = l20_len;
+        L30 = l30_len;
+        T=@(theta,phi) [ cos(phi)*cos(theta), -sin(theta), cos(theta)*sin(phi), L10*cos(theta)*sin(phi)
+        cos(phi)*sin(theta),  cos(theta), sin(phi)*sin(theta), L10*sin(phi)*sin(theta)
+            -sin(phi),            0,             cos(phi),             L10*cos(phi)
                      0,            0,                     0,              1          ];
         for i=1:length(xe)
-            P3=[xe(i);ye;ze];
+            cla
+            P3=[xe(i);ye(i);ze(i)];
             Phi3=[tx;ty;tz];
-            [P1,P2]=fun_tri_IK(P3,Phi3,L0);
+            [P1,P2]=fun_tri_IK(P3,Phi3,L10, L20);
 
             tz1=atan(P1(2)/P1(1));
             ty1=atan(P1(1)/P1(3)/cos(tz1));
@@ -1010,18 +1017,29 @@ FK;
             T2=T1*T(tz2,ty2);
 
           % draw the base triangle   
-            a=1;
-            A=[a,0,0]';
-            B=[a*cosd(120),a*sind(120),0]';
-            C=[a*cosd(240),a*sind(240),0]';
+            a1 = L10*sind(30);   % the distance from the base of the actuator to base
+            a2 = L20*sind(30);
+            a3 = L30*sind(30);
+            
+            A=[a1,0,0]';
+            B=[a1*cosd(120),a1*sind(120),0]';
+            C=[a1*cosd(240),a1*sind(240),0]';
+            
+            A_2=[a2,0,0]';
+            B_2=[a2*cosd(120),a2*sind(120),0]';
+            C_2=[a2*cosd(240),a2*sind(240),0]';
+            
+            A_3=[a3,0,0]';
+            B_3=[a3*cosd(120),a3*sind(120),0]';
+            C_3=[a3*cosd(240),a3*sind(240),0]';
+            
+            A2=T1*[A_2;1];A2=A2(1:3);
+            B2=T1*[B_2;1];B2=B2(1:3);
+            C2=T1*[C_2;1];C2=C2(1:3);
 
-            A2=T1*[A;1];A2=A2(1:3);
-            B2=T1*[B;1];B2=B2(1:3);
-            C2=T1*[C;1];C2=C2(1:3);
-
-            A3=T2*[A;1];A3=A3(1:3);
-            B3=T2*[B;1];B3=B3(1:3);
-            C3=T2*[C;1];C3=C3(1:3); 
+            A3=T2*[A_3;1];A3=A3(1:3);
+            B3=T2*[B_3;1];B3=B3(1:3);
+            C3=T2*[C_3;1];C3=C3(1:3); 
 
             xa=A(1);ya=A(2);za=A(3);
             xb=B(1);yb=B(2);zb=B(3);
@@ -1036,25 +1054,25 @@ FK;
             x3c=C3(1);y3c=C3(2);z3c=C3(3);
 
             hold off
-                line([xa,xa;xb,xc],[ya,ya;yb,yc],[za,za;zb,zc])
+                plot3([xa,xa,xb;xb,xc,xc],[ya,ya,yb;yb,yc,yc],[za,za,zb;zb,zc,zc],'b-','linewidth',2)
             hold on
-                line([x2a,x2a;x2b,x2c],[y2a,y2a;y2b,y2c],[z2a,z2a;z2b,z2c])
-                line([x3a,x3a;x3b,x3c],[y3a,y3a;y3b,y3c],[z3a,z3a;z3b,z3c])
+                plot3([x2a,x2a,x2b;x2b,x2c,x2c],[y2a,y2a,y2b;y2b,y2c,y2c],[z2a,z2a,z2b;z2b,z2c,z2c],'b-','linewidth',2)
+                plot3([x3a,x3a,x3b;x3b,x3c,x3c],[y3a,y3a,y3b;y3b,y3c,y3c],[z3a,z3a,z3b;z3b,z3c,z3c],'b-','linewidth',2)
 
             %draw link L1,L2,L3    
             plot3([xa,P1(1)],[ya,P1(2)],[za,P1(3)],'b-','linewidth',3);    
-            plot3([xb,P1(1)],[yb,P1(2)],[zb,P1(3)],'b-','linewidth',3);
-            plot3([xc,P1(1)],[yc,P1(2)],[zc,P1(3)],'b-','linewidth',3);
+            plot3([xb,P1(1)],[yb,P1(2)],[zb,P1(3)],'g-','linewidth',3);
+            plot3([xc,P1(1)],[yc,P1(2)],[zc,P1(3)],'r-','linewidth',3);
 
             plot3([x2a,P2(1)],[y2a,P2(2)],[z2a,P2(3)],'b-','linewidth',3);    
-            plot3([x2b,P2(1)],[y2b,P2(2)],[z2b,P2(3)],'b-','linewidth',3);
-            plot3([x2c,P2(1)],[y2c,P2(2)],[z2c,P2(3)],'b-','linewidth',3);    
+            plot3([x2b,P2(1)],[y2b,P2(2)],[z2b,P2(3)],'g-','linewidth',3);
+            plot3([x2c,P2(1)],[y2c,P2(2)],[z2c,P2(3)],'r-','linewidth',3);    
 
             plot3([x3a,P3(1)],[y3a,P3(2)],[z3a,P3(3)],'b-','linewidth',3);    
-            plot3([x3b,P3(1)],[y3b,P3(2)],[z3b,P3(3)],'b-','linewidth',3);
-            plot3([x3c,P3(1)],[y3c,P3(2)],[z3c,P3(3)],'b-','linewidth',3);    
+            plot3([x3b,P3(1)],[y3b,P3(2)],[z3b,P3(3)],'g-','linewidth',3);
+            plot3([x3c,P3(1)],[y3c,P3(2)],[z3c,P3(3)],'r-','linewidth',3);    
             %draw link L0
-            plot3([0,P1(1),P2(1),P3(1)],[0,P1(2),P2(2),P3(2)],[0,P1(3),P2(3),P3(3)],'r-*','linewidth',3);
+            plot3([0,P1(1),P2(1),P3(1)],[0,P1(2),P2(2),P3(2)],[0,P1(3),P2(3),P3(3)]);
 
             xlabel('X');
             ylabel('Y');
